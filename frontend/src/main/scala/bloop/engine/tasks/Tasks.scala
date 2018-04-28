@@ -10,7 +10,13 @@ import bloop.exec.Forker
 import bloop.io.AbsolutePath
 import bloop.logging.BspLogger
 import bloop.reporter.{BspReporter, LogReporter, Problem, ReporterConfig}
-import bloop.testing.{DiscoveredTests, LoggingEventHandler, TestInternals, TestSuiteEvent, TestSuiteEventHandler}
+import bloop.testing.{
+  DiscoveredTests,
+  LoggingEventHandler,
+  TestInternals,
+  TestSuiteEvent,
+  TestSuiteEventHandler
+}
 import bloop.{CompileInputs, Compiler, Project}
 import monix.eval.Task
 import sbt.internal.inc.{Analysis, AnalyzingCompiler, ConcreteAnalysisContents, FileAnalysisStore}
@@ -87,7 +93,7 @@ object Tasks {
       }
 
       // FORMAT: OFF
-      CompileInputs(instance, compilerCache, sources, classpath, classesDir, target, scalacOptions, javacOptions, classpathOptions, result, reporter, logger)
+      CompileInputs(instance, compilerCache, sources, classpath, Array(), classesDir, target, scalacOptions, javacOptions, classpathOptions, result, reporter, None, None, logger)
       // FORMAT: ON
     }
 
@@ -436,7 +442,7 @@ object Tasks {
   def reasonOfInvalidPath(output: Path, extension: String): Option[String] = {
     reasonOfInvalidPath(output).orElse {
       if (!output.toString.endsWith(extension))
-      // This is required for the Scala.js linker, otherwise it will throw an exception
+        // This is required for the Scala.js linker, otherwise it will throw an exception
         Some(s"The output path $output must have the extension '$extension'.")
       else None
     }
