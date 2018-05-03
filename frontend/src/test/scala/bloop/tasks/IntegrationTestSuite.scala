@@ -70,7 +70,7 @@ class IntegrationTestSuite(testDirectory: Path) {
           dependencies = previousProjects.map(_.name).toArray,
           scalaInstance = previousProjects.head.scalaInstance,
           rawClasspath = Array.empty,
-          classpathOptions = ClasspathOptionsUtil.boot(),
+          compileSetup = Config.CompileSetup.empty,
           classesDir = classesDir,
           scalacOptions = Array.empty,
           javacOptions = Array.empty,

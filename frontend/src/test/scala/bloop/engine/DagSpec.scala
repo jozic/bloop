@@ -15,12 +15,13 @@ class DagSpec {
 
   private val logger = new RecordingLogger
   private val classpathOptions = ClasspathOptionsUtil.boot()
+  private val compileOptions = Config.CompileSetup.empty
   private val dummyInstance = CompilationHelpers.scalaInstance
   private val dummyPath = bloop.io.AbsolutePath("/tmp/non-existing")
 
   // format: OFF
   def dummyProject(name: String, dependencies: List[String]): Project =
-    Project(name, dummyPath, dependencies.toArray, dummyInstance, Array(), classpathOptions, dummyPath, Array(),
+    Project(name, dummyPath, dependencies.toArray, dummyInstance, Array(), compileOptions, dummyPath, Array(),
       Array(), Array(), Array(), Config.TestOptions.empty, JavaEnv.default, dummyPath, dummyPath,
       Config.Platform.default, None, None, None, None)
   // format: ON

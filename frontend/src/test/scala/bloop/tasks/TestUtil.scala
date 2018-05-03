@@ -226,7 +226,7 @@ object TestUtil {
       dependencies = dependencies.toArray,
       scalaInstance = scalaInstance,
       rawClasspath = classpath,
-      classpathOptions = ClasspathOptionsUtil.boot(),
+      compileSetup = Config.CompileSetup.empty,
       classesDir = AbsolutePath(target),
       scalacOptions = Array.empty,
       javacOptions = Array.empty,

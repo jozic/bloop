@@ -23,7 +23,7 @@ final case class Project(
     dependencies: Array[String],
     scalaInstance: ScalaInstance,
     rawClasspath: Array[AbsolutePath],
-    classpathOptions: ClasspathOptions,
+    compileSetup: Config.CompileSetup,
     classesDir: AbsolutePath,
     scalacOptions: Array[String],
     javacOptions: Array[String],
@@ -47,6 +47,17 @@ final case class Project(
 
   /** This project's full classpath (classes directory and raw classpath) */
   val classpath: Array[AbsolutePath] = classesDir +: rawClasspath
+
+  val classpathOptions: ClasspathOptions = {
+    ClasspathOptions.of(
+      compileSetup.addLibraryToBootClasspath,
+      compileSetup.addCompilerToClasspath,
+      compileSetup.addExtraJarsToClasspath,
+      compileSetup.manageBootClasspath,
+      compileSetup.filterLibraryFromClasspath
+    )
+  }
+
 }
 
 object Project {
@@ -107,17 +118,7 @@ object Project {
       }
     }
 
-    val classpathOptions = {
-      val setup = project.compileSetup
-      ClasspathOptions.of(
-        setup.addLibraryToBootClasspath,
-        setup.addCompilerToClasspath,
-        setup.addExtraJarsToClasspath,
-        setup.manageBootClasspath,
-        setup.filterLibraryFromClasspath
-      )
-    }
-
+    val setup = project.compileSetup
     val jsToolchain = project.platform match {
       case platform: Config.Platform.Js =>
         Try(ScalaJsToolchain.resolveToolchain(platform, logger)).toOption
@@ -152,8 +153,8 @@ object Project {
       AbsolutePath(project.directory),
       project.dependencies,
       instance,
-      project.classpath.map(AbsolutePath.apply),
-      classpathOptions,
+      project.classpath.map(AbsolutePath.apply).toArray,
+      setup,
       AbsolutePath(project.classesDir),
       scala.options,
       project.java.options,
@@ -177,10 +178,11 @@ object Project {
     val contents = new String(Files.readAllBytes(config.underlying), StandardCharsets.UTF_8)
     parser.parse(contents) match {
       case Left(failure) => throw failure
-      case Right(json) => ConfigEncoderDecoders.allDecoder.decodeJson(json) match {
-        case Right(file) => Project.fromConfig(file, logger)
-        case Left(failure) => throw failure
-      }
+      case Right(json) =>
+        ConfigEncoderDecoders.allDecoder.decodeJson(json) match {
+          case Right(file) => Project.fromConfig(file, logger)
+          case Left(failure) => throw failure
+        }
     }
   }
 }
