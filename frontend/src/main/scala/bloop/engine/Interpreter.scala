@@ -124,7 +124,7 @@ object Interpreter {
     state.build.getProjectFor(cmd.project) match {
       case Some(project) =>
         def doCompile(state: State): Task[State] =
-          Pipelined.compile(state, project, config, sequential).map(_.mergeStatus(ExitStatus.Ok))
+          Tasks.compile(state, project, config, sequential).map(_.mergeStatus(ExitStatus.Ok))
 
         val initialState = {
           if (cmd.incremental) Task.now(state)
@@ -165,7 +165,7 @@ object Interpreter {
       checkPrevious: Boolean,
       nextAction: String
   )(next: State => Task[State]): Task[State] = {
-    Pipelined.compile(state, project, reporterConfig, checkPrevious, excludeRoot).flatMap { compiled =>
+    Tasks.compile(state, project, reporterConfig, checkPrevious, excludeRoot).flatMap { compiled =>
       if (compiled.status != ExitStatus.CompilationError) next(compiled)
       else {
         Task.now {
