@@ -7,14 +7,13 @@ import scala.util.Try
 import bloop.exec.JavaEnv
 import bloop.io.{AbsolutePath, Paths}
 import bloop.logging.Logger
-import xsbti.compile.ClasspathOptions
+import xsbti.compile.{ClasspathOptions, CompileOrder}
 import _root_.monix.eval.Task
 import bloop.bsp.ProjectUris
 import config.{Config, ConfigEncoderDecoders}
 import config.Config.Platform
 import bloop.engine.ExecutionContext
 import bloop.engine.tasks.{ScalaJsToolchain, ScalaNativeToolchain}
-
 import ch.epfl.scala.{bsp => Bsp}
 
 final case class Project(
@@ -58,6 +57,11 @@ final case class Project(
     )
   }
 
+  val compileOrder: CompileOrder = compileSetup.order match {
+    case Config.Mixed => CompileOrder.Mixed
+    case Config.JavaThenScala => CompileOrder.JavaThenScala
+    case Config.ScalaThenJava => CompileOrder.ScalaThenJava
+  }
 }
 
 object Project {
